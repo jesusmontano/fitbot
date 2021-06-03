@@ -66,5 +66,9 @@
     "test": "jest --verbose src",
     "test:watch": "jest --verbose --watch src"
   },
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "dependencies": {
+    "@slack/bolt": "^3.3.0",
+    "dotenv": "^10.0.0"
+  }
 }
