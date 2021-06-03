@@ -1,5 +1,9 @@
-const { App } = require('@slack/bolt');
-require('dotenv').config();
+import { App } from '@slack/bolt';
+import dotenv from 'dotenv';
+import { showLogo } from './services/logo';
+import { generateChallenge } from './services/challenge';
+
+dotenv.config();
 
 // Initializes your app with your bot token and signing secret
 const app = new App({
@@ -9,16 +13,10 @@ const app = new App({
 
 (async () => {
 	// Start your app
-	await app.start(process.env.PORT || 3000);
-
-	console.log('⚡️ Bolt app is running!');
-	console.log(
-		`     ___  _  _    _             _     _      ___   \n` +
-			`    / __\\(_)| |_ | |__    ___  | |_  / |    / _ \\  \n` +
-			`   / _\\  | || __|| '_ \\  / _ \\ | __| | |   | | | | \n` +
-			`  / /    | || |_ | |_) || (_) || |_  | | _ | |_| | \n` +
-			`  \\/     |_| \\__||_.__/  \\___/  \\__| |_|(_) \\___/ 	\n`,
-	);
+	const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+	await app.start(port);
+	showLogo();
+	await generateChallenge();
 })();
 
 export default {};
