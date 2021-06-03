@@ -1,0 +1,26 @@
+{
+	"config": {
+		"nextExerciseDelayMinutes": {
+			"min": 10,
+			"max": 50
+		},
+		"minimumExerciseUserGroupSize": 3,
+		"exercises": [
+			{
+				"name": "Pushups",
+				"message": "Do ${count} pushups!",
+				"count": {
+					"min": 5,
+					"max": 15,
+					"unit": "reps"
+				}
+			}
+		],
+		"messages": {
+			"congratulations": [
+				"Well done ${name}!",
+				"Good work ${name}!"
+			]
+		}
+	}
+}
