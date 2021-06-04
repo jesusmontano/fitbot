@@ -2,6 +2,7 @@ import DB from 'better-sqlite3-helper';
 import { Challenge, CompleteChallengeResult } from '../types';
 import { getLoggerByFilename } from '../util/logger';
 import { Logger } from 'log4js';
+import { v4 as uuidv4 } from 'uuid';
 
 const log: Logger = getLoggerByFilename(__filename);
 
@@ -32,6 +33,7 @@ const completeChallenge = (userId: string): CompleteChallengeResult => {
 		return CompleteChallengeResult.NotFound;
 	}
 	DB().insert('Achievements', {
+		id: uuidv4(),
 		user_id: userId,
 		exercise_name: challenge.exercise_name,
 		count_number: challenge.count_number,
@@ -39,7 +41,21 @@ const completeChallenge = (userId: string): CompleteChallengeResult => {
 		date: challenge.date,
 	});
 	log.info(DB().queryFirstRow('SELECT * FROM Achievements'));
+	// console.log(`Top Scores...`);
+	// console.log(getTopScores());
+	// console.log(`User Score...`);
+	// console.log(getUserScore(userId));
 	return CompleteChallengeResult.Completed;
 };
 
-export { storeChallenge, completeChallenge };
+const getTopScores = () => {
+	return DB().query(
+		'SELECT user_id, COUNT(*) as achievement_count FROM Achievements GROUP BY user_id ORDER BY achievement_count DESC LIMIT 3',
+	);
+};
+
+const getUserScore = (userId: string) => {
+	return DB().query('SELECT COUNT(*) as achievement_count FROM achievements WHERE user_id=?', userId);
+};
+
+export { storeChallenge, completeChallenge, getTopScores, getUserScore };
