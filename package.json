@@ -66,7 +66,8 @@
     "lint": "eslint '**/*.{js,ts}' --fix",
     "pretty": "prettier '**/*.json' --write",
     "test": "jest --verbose src",
-    "test:watch": "jest --verbose --watch src"
+    "test:watch": "jest --verbose --watch src",
+    "start": "npm run dev"
   },
   "version": "1.0.0",
   "dependencies": {
