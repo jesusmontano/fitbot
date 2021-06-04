@@ -43,7 +43,7 @@ const completeChallenge = (userId: string): CompleteChallengeResult => {
 		exercise_name: challenge.exercise_name,
 		total_count_number: totalCountNumber,
 		total_count_unit: challenge.count_unit,
-		date: challenge,
+		date: challenge.date,
 	});
 	log.info(DB().queryFirstRow('SELECT * FROM Achievements'));
 	return CompleteChallengeResult.Completed;
