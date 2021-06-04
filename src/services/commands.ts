@@ -77,7 +77,7 @@ const registerTriggers = (app: App) => {
 		});
 	});
 
-	interface TotalAchievements {
+	interface Achievement {
 		achievement_count: number;
 	}
 
@@ -87,9 +87,7 @@ const registerTriggers = (app: App) => {
 
 		log.info(`Received !my-score from ${message.user}`);
 
-		let totalAchievements = (getUserScore(message.user) as unknown) as TotalAchievements;
-
-		console.log(totalAchievements);
+		let totalAchievements = (getUserScore(message.user) as unknown) as Achievement[];
 
 		await say({
 			text: `:100: Here's your score, <@${message.user}>! \n` + `You've completed ${totalAchievements}. \n`,
@@ -100,7 +98,7 @@ const registerTriggers = (app: App) => {
 						type: 'mrkdwn',
 						text:
 							`*Here's your score, <@${message.user}>!* :100: \n` +
-							`You've completed ${totalAchievements.achievement_count} challenges. \n`,
+							`You've completed ${totalAchievements[0].achievement_count} challenges. \n`,
 					},
 				},
 			],
