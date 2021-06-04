@@ -2,7 +2,7 @@ import { App } from '@slack/bolt';
 import dotenv from 'dotenv';
 import { showLogo } from './services/logo';
 import { generateChallenge } from './services/challenge';
-import { isGenericMessageEvent } from './util/helpers';
+import { getRandomUser } from './util/helpers';
 
 dotenv.config();
 
@@ -12,11 +12,12 @@ const app = new App({
 	signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 
-// Listens to incoming messages that contain "hello"
-app.message('hello', async ({ message, say }) => {
+// Listens to incoming messages that contain "!hello"
+app.message('!hello', async ({ message, say, client }) => {
+	const { members } = await client.conversations.members({ channel: message.channel });
+	if (!members) return;
 	// say() sends a message to the channel where the event was triggered
-	if (!isGenericMessageEvent(message)) return;
-	await say(`Hello, <@${message.user}>`);
+	await say(`Hey, <@${getRandomUser(members)}>! It's time to move around!`);
 });
 
 (async () => {
