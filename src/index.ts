@@ -24,8 +24,7 @@ registerTriggers(app);
 	const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 	await app.start(port);
 	log.info(`Started app on port ${port}`);
-	// await scheduleChallenge(ScheduleType.Random);
-	await scheduleChallenge(ScheduleType.Immediate);
+	await scheduleChallenge(ScheduleType.Random);
 })();
 
 export default {};
