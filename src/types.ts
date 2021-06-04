@@ -1,12 +1,18 @@
-enum Unit {
+enum CountUnit {
 	Reps,
 	Seconds,
+}
+
+enum TimeUnit {
+	Seconds = 'seconds',
+	Minutes = 'minutes',
+	Hours = 'hours',
 }
 
 interface CountRange {
 	min: number;
 	max: number;
-	unit: Unit;
+	unit: CountUnit;
 }
 
 interface Exercise {
@@ -15,10 +21,17 @@ interface Exercise {
 	countRange: CountRange;
 }
 
+interface Delay {
+	value: number;
+	unit: TimeUnit;
+	valueInMs: number;
+}
+
 interface Config {
-	nextExerciseDelayMinutes: {
+	nextExerciseDelay: {
 		min: number;
 		max: number;
+		unit: TimeUnit;
 	};
 	minimumExerciseUserGroupSize: number;
 	exercises: Exercise[];
@@ -29,7 +42,7 @@ interface Config {
 
 interface Count {
 	number: number;
-	unit: Unit;
+	unit: CountUnit;
 }
 
 interface Challenge {
@@ -44,4 +57,9 @@ enum ScheduleType {
 	Random,
 }
 
-export { Challenge, CountRange, Count, Exercise, Config, ScheduleType };
+enum CompleteChallengeResult {
+	Completed,
+	NotFound,
+}
+
+export { Challenge, CountRange, Count, Exercise, Config, ScheduleType, CompleteChallengeResult, Delay, TimeUnit };

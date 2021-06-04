@@ -1,5 +1,9 @@
 import { WebClient, LogLevel } from '@slack/web-api';
 import { Challenge } from 'types';
+import { getLoggerByFilename } from '../util/logger';
+import { Logger } from 'log4js';
+
+const log: Logger = getLoggerByFilename(__filename);
 
 const client = new WebClient(process.env.SLACK_BOT_TOKEN, {
 	logLevel: LogLevel.INFO,
@@ -8,7 +12,7 @@ const client = new WebClient(process.env.SLACK_BOT_TOKEN, {
 const getFitbotUserId = async () => {
 	const botInfo = await client.bots.info({ bot: process.env.SLACK_BOT_ID });
 	if (!botInfo.ok) {
-		console.log(`Can't get Slack bot info.`);
+		log.info(`Can't get Slack bot info.`);
 		process.exit(1);
 	}
 	return botInfo.bot?.user_id;
@@ -19,7 +23,7 @@ const getUsers = async () => {
 	const fitbotUserId = await getFitbotUserId();
 	const { members } = await client.conversations.members({ channel });
 	if (!members) {
-		console.log(`Can't get Slack conversation members.`);
+		log.info(`Can't get Slack conversation members.`);
 		process.exit(1);
 	}
 	return members?.filter((member) => {
@@ -69,4 +73,6 @@ const sendChallengeMessage = async (challenge: Challenge) => {
 	});
 };
 
-export { getUsers, sendChallengeMessage };
+const getClient = () => client;
+
+export { getUsers, sendChallengeMessage, getClient };
