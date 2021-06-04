@@ -2,6 +2,8 @@ import { getConfig } from './config';
 import random from 'random';
 import { render } from 'eta';
 import { Challenge, Count, CountRange, Exercise, ScheduleType } from '../types';
+import { getUsers, sendChallengeMessage } from './slack';
+import arrayShuffle from 'array-shuffle';
 
 const getCount = (countRange: CountRange): Count => {
 	const number = random.int(countRange.min, countRange.max);
@@ -22,7 +24,13 @@ const getRandomExercise = async (): Promise<Exercise> => {
 };
 
 const getRandomUsers = async (): Promise<string[]> => {
-	return ['sdfdsf', '34f242'];
+	const users = await getUsers();
+	const shuffledUsers = arrayShuffle(users);
+	const config = await getConfig();
+	const minGroupSize =
+		config.minimumExerciseUserGroupSize > users.length ? users.length : config.minimumExerciseUserGroupSize;
+	const exerciseUserGroupSize = random.int(minGroupSize, users.length);
+	return shuffledUsers.slice(0, exerciseUserGroupSize);
 };
 
 export const generateChallenge = async (): Promise<Challenge> => {
@@ -59,7 +67,7 @@ const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
 	}
 	scheduledChallengeTimer = setTimeout(async () => {
 		const challenge = await generateChallenge();
-		console.log(challenge);
+		await sendChallengeMessage(challenge);
 		scheduleChallenge(ScheduleType.Random);
 	}, delayMinutes * 1000 * 60);
 };

@@ -1,11 +1,10 @@
 import { App } from '@slack/bolt';
-import dotenv from 'dotenv';
 import { showLogo } from './services/logo';
 import { scheduleChallenge, generateChallenge } from './services/challenge';
-import { getRandomUser } from './util/helpers';
+import { getRandomUser, validateEnvs } from './util/helpers';
 import { ScheduleType } from './types';
 
-dotenv.config();
+validateEnvs(['SLACK_SIGNING_SECRET', 'SLACK_BOT_TOKEN', 'SLACK_CHANNEL_ID', 'SLACK_BOT_ID']);
 
 // Initializes your app with your bot token and signing secret
 const app = new App({

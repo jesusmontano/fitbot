@@ -3,7 +3,7 @@
 		"min": 1,
 		"max": 2
 	},
-	"minimumExerciseUserGroupSize": 3,
+	"minimumExerciseUserGroupSize": 2,
 	"exercises": [
 		{
 			"name": "Pushup",
