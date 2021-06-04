@@ -25,7 +25,7 @@ const getRandomUsers = async (): Promise<string[]> => {
 	return ['sdfdsf', '34f242'];
 };
 
-const generateChallenge = async (): Promise<Challenge> => {
+export const generateChallenge = async (): Promise<Challenge> => {
 	const exercise = await getRandomExercise();
 	const users = await getRandomUsers();
 	const { name, messageTemplate, countRange } = exercise;
