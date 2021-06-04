@@ -105,6 +105,3 @@ dist
 
 # SQLite db files
 data/database.*
-
-# Typescript build dir
-target/*

@@ -63,7 +63,7 @@
   "name": "fitbot",
   "scripts": {
     "clear-db": "rm data/database.*",
-    "build": "rm -rf target && tsc",
+    "compile": "rm -rf target && tsc",
     "dev": "ts-node --require dotenv/config src/index.ts",
     "lint": "eslint '**/*.{js,ts}' --fix",
     "pretty": "prettier '**/*.json' --write",
