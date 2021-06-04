@@ -31,18 +31,11 @@ const completeChallenge = (userId: string): CompleteChallengeResult => {
 	if (challenge === undefined) {
 		return CompleteChallengeResult.NotFound;
 	}
-	let achievement = DB().queryFirstRow(
-		'SELECT * FROM Achievements WHERE user_id=? AND exercise_name=?',
-		userId,
-		challenge.exercise_name,
-	);
-	const totalCountNumber =
-		achievement === undefined ? challenge.count_number : achievement.total_count_number + challenge.count_number;
-	DB().replace('Achievements', {
+	DB().insert('Achievements', {
 		user_id: userId,
 		exercise_name: challenge.exercise_name,
-		total_count_number: totalCountNumber,
-		total_count_unit: challenge.count_unit,
+		count_number: challenge.count_number,
+		count_unit: challenge.count_unit,
 		date: challenge.date,
 	});
 	log.info(DB().queryFirstRow('SELECT * FROM Achievements'));
