@@ -77,13 +77,17 @@ const registerTriggers = (app: App) => {
 		});
 	});
 
+	interface TotalAchievements {
+		achievement_count: number;
+	}
+
 	// Listens to incoming messages that contain "!my-score"
 	registerTrigger(app, '!my-score', async ({ message, say }: SlackEventMiddlewareArgs<'message'>) => {
 		if (!isGenericMessageEvent(message)) return;
 
 		log.info(`Received !my-score from ${message.user}`);
 
-		let totalAchievements = getUserScore(message.user);
+		let totalAchievements = (getUserScore(message.user) as unknown) as TotalAchievements;
 
 		console.log(totalAchievements);
 
