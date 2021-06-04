@@ -1,6 +1,7 @@
 {
   "description": "A Slackbot with the aim of getting people to exercise.",
   "devDependencies": {
+    "@types/better-sqlite3": "^5.4.1",
     "@types/jest": "26.0.23",
     "@types/log4js": "^2.3.5",
     "@types/node": "^15.12.0",
@@ -67,7 +68,7 @@
     "pretty": "prettier '**/*.json' --write",
     "test": "jest --verbose src",
     "test:watch": "jest --verbose --watch src",
-    "start": "node --require dotenv/config target/index.js"
+    "start": "npm run build && node --require dotenv/config target/index.js"
   },
   "version": "1.0.0",
   "dependencies": {
