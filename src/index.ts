@@ -24,7 +24,9 @@ app.message('hello', async ({ message, say }) => {
 	const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 	await app.start(port);
 	showLogo();
-	await generateChallenge();
+	console.log(`Started app on port ${port}`);
+	const challenge = await generateChallenge();
+	console.log(challenge);
 })();
 
 export default {};

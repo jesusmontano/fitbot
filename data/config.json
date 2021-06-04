@@ -1,26 +1,33 @@
 {
-	"config": {
-		"nextExerciseDelayMinutes": {
-			"min": 10,
-			"max": 50
-		},
-		"minimumExerciseUserGroupSize": 3,
-		"exercises": [
-			{
-				"name": "Pushups",
-				"message": "Do ${count} pushups!",
-				"count": {
-					"min": 5,
-					"max": 15,
-					"unit": "reps"
-				}
+	"nextExerciseDelayMinutes": {
+		"min": 10,
+		"max": 50
+	},
+	"minimumExerciseUserGroupSize": 3,
+	"exercises": [
+		{
+			"name": "Pushup",
+			"messageTemplate": "Do <%= it.number %> pushups!",
+			"countRange": {
+				"min": 5,
+				"max": 15,
+				"unit": "reps"
 			}
-		],
-		"messages": {
-			"congratulations": [
-				"Well done ${name}!",
-				"Good work ${name}!"
-			]
+		},
+		{
+			"name": "Ski sit",
+			"messageTemplate": "Do a ski sit for <%= it.number %> seconds!",
+			"countRange": {
+				"min": 5,
+				"max": 15,
+				"unit": "seconds"
+			}
 		}
+	],
+	"messages": {
+		"congratulations": [
+			"Well done ${name}!",
+			"Good work ${name}!"
+		]
 	}
 }
