@@ -60,7 +60,7 @@
   "name": "fitbot",
   "scripts": {
     "compile": "rm -rf target && tsc",
-    "dev": "ts-node src/index.ts",
+    "dev": "ts-node --require dotenv/config src/index.ts",
     "lint": "eslint '**/*.{js,ts}' --fix",
     "pretty": "prettier '**/*.json' --write",
     "test": "jest --verbose src",
@@ -69,6 +69,8 @@
   "version": "1.0.0",
   "dependencies": {
     "@slack/bolt": "^3.3.0",
+    "array-shuffle": "^2.0.0",
+    "delay": "^5.0.0",
     "dotenv": "^10.0.0",
     "eta": "^1.12.1",
     "random": "^3.0.6"

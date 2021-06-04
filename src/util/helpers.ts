@@ -7,3 +7,12 @@ export const isGenericMessageEvent = (msg: MessageEvent): msg is GenericMessageE
 export const getRandomUser = (users: string[]): string => {
 	return users[Math.floor(Math.random() * users.length)];
 };
+
+export const validateEnvs = (envNames: string[]) => {
+	envNames.forEach((envName: string) => {
+		if (process.env[envName] === '') {
+			console.log(`Missing environment variable: ${envName}`);
+			process.exit(1);
+		}
+	});
+};
