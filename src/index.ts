@@ -1,8 +1,9 @@
 import { App } from '@slack/bolt';
 import dotenv from 'dotenv';
 import { showLogo } from './services/logo';
-import { generateChallenge } from './services/challenge';
+import { scheduleChallenge } from './services/challenge';
 import { getRandomUser } from './util/helpers';
+import { ScheduleType } from './types';
 
 dotenv.config();
 
@@ -26,8 +27,7 @@ app.message('!hello', async ({ message, say, client }) => {
 	await app.start(port);
 	showLogo();
 	console.log(`Started app on port ${port}`);
-	const challenge = await generateChallenge();
-	console.log(challenge);
+	await scheduleChallenge(ScheduleType.Immediate);
 })();
 
 export default {};

@@ -1,7 +1,7 @@
 import { getConfig } from './config';
 import random from 'random';
 import { render } from 'eta';
-import { Challenge, Count, CountRange, Exercise } from '../types';
+import { Challenge, Count, CountRange, Exercise, ScheduleType } from '../types';
 
 const getCount = (countRange: CountRange): Count => {
 	const number = random.int(countRange.min, countRange.max);
@@ -39,4 +39,29 @@ const generateChallenge = async (): Promise<Challenge> => {
 	};
 };
 
-export { generateChallenge };
+const getNextExerciseDelayMinutes = async (scheduleType: ScheduleType): Promise<number> => {
+	if (scheduleType === ScheduleType.Immediate) {
+		return 0;
+	}
+	const config = await getConfig();
+	return random.int(config.nextExerciseDelayMinutes.min, config.nextExerciseDelayMinutes.max);
+};
+
+let scheduledChallengeTimer: NodeJS.Timeout | null = null;
+
+const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
+	const delayMinutes = await getNextExerciseDelayMinutes(scheduleType);
+	if (delayMinutes > 0) {
+		console.log(`Scheduling challenge in ${delayMinutes} minute(s)`);
+	}
+	if (scheduledChallengeTimer !== null) {
+		clearTimeout(scheduledChallengeTimer);
+	}
+	scheduledChallengeTimer = setTimeout(async () => {
+		const challenge = await generateChallenge();
+		console.log(challenge);
+		scheduleChallenge(ScheduleType.Random);
+	}, delayMinutes * 1000 * 60);
+};
+
+export { scheduleChallenge };

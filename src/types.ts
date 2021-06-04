@@ -1,12 +1,12 @@
-enum UNIT {
-	reps,
-	seconds,
+enum Unit {
+	Reps,
+	Seconds,
 }
 
 interface CountRange {
 	min: number;
 	max: number;
-	unit: UNIT;
+	unit: Unit;
 }
 
 interface Exercise {
@@ -29,7 +29,7 @@ interface Config {
 
 interface Count {
 	number: number;
-	unit: UNIT;
+	unit: Unit;
 }
 
 interface Challenge {
@@ -39,4 +39,9 @@ interface Challenge {
 	users: string[];
 }
 
-export { Challenge, CountRange, Count, Exercise, Config };
+enum ScheduleType {
+	Immediate,
+	Random,
+}
+
+export { Challenge, CountRange, Count, Exercise, Config, ScheduleType };
