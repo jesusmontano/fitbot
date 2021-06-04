@@ -1,7 +1,7 @@
 import { App, Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
 import { CompleteChallengeResult, ScheduleType } from '../types';
 import { scheduleChallenge } from './challenge';
-import { completeChallenge } from './database';
+import { completeChallenge, getUserScore } from './database';
 import { isGenericMessageEvent } from '../util/helpers';
 import { getLoggerByFilename } from '../util/logger';
 import { Logger } from 'log4js';
@@ -77,14 +77,22 @@ const registerTriggers = (app: App) => {
 		});
 	});
 
+	interface TotalAchievements {
+		achievement_count: number;
+	}
+
 	// Listens to incoming messages that contain "!my-score"
 	registerTrigger(app, '!my-score', async ({ message, say }: SlackEventMiddlewareArgs<'message'>) => {
 		if (!isGenericMessageEvent(message)) return;
 
 		log.info(`Received !my-score from ${message.user}`);
 
+		let totalAchievements = (getUserScore(message.user) as unknown) as TotalAchievements;
+
+		console.log(totalAchievements);
+
 		await say({
-			text: `:100: Here's your score, <@${message.user}>! \n` + `Push-ups: 100 \n` + `Ski-sits: 60 \n`,
+			text: `:100: Here's your score, <@${message.user}>! \n` + `You've completed ${totalAchievements}. \n`,
 			blocks: [
 				{
 					type: 'section',
@@ -92,8 +100,7 @@ const registerTriggers = (app: App) => {
 						type: 'mrkdwn',
 						text:
 							`*Here's your score, <@${message.user}>!* :100: \n` +
-							`Push-ups: 100 \n` +
-							`Ski-sits: 60 \n`,
+							`You've completed ${totalAchievements.achievement_count} challenges. \n`,
 					},
 				},
 			],
