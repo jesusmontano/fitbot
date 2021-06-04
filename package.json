@@ -61,13 +61,13 @@
   "name": "fitbot",
   "scripts": {
     "clear-db": "rm data/database.*",
-    "compile": "rm -rf target && tsc",
+    "build": "rm -rf target && tsc",
     "dev": "ts-node --require dotenv/config src/index.ts",
     "lint": "eslint '**/*.{js,ts}' --fix",
     "pretty": "prettier '**/*.json' --write",
     "test": "jest --verbose src",
     "test:watch": "jest --verbose --watch src",
-    "start": "npm run dev"
+    "start": "node --require dotenv/config target/index.js"
   },
   "version": "1.0.0",
   "dependencies": {
