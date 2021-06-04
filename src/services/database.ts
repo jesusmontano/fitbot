@@ -41,10 +41,10 @@ const completeChallenge = (userId: string): CompleteChallengeResult => {
 		date: challenge.date,
 	});
 	log.info(DB().queryFirstRow('SELECT * FROM Achievements'));
-	console.log(`Top Scores...`);
-	console.log(getTopScores());
-	console.log(`User Score...`);
-	console.log(getUserScore(userId));
+	// console.log(`Top Scores...`);
+	// console.log(getTopScores());
+	// console.log(`User Score...`);
+	// console.log(getUserScore(userId));
 	return CompleteChallengeResult.Completed;
 };
 
@@ -58,4 +58,4 @@ const getUserScore = (userId: string) => {
 	return DB().query('SELECT COUNT(*) as achievement_count FROM achievements WHERE user_id=?', userId);
 };
 
-export { storeChallenge, completeChallenge };
+export { storeChallenge, completeChallenge, getTopScores, getUserScore };
