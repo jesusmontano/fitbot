@@ -1,7 +1,8 @@
 {
-	"nextExerciseDelayMinutes": {
+	"nextExerciseDelay": {
 		"min": 1,
-		"max": 2
+		"max": 1,
+		"unit": "minutes"
 	},
 	"minimumExerciseUserGroupSize": 2,
 	"exercises": [
@@ -18,8 +19,8 @@
 			"name": "Ski sit",
 			"messageTemplate": "Do a ski sit for <%= it.number %> seconds!",
 			"countRange": {
-				"min": 5,
-				"max": 15,
+				"min": 30,
+				"max": 90,
 				"unit": "seconds"
 			}
 		}

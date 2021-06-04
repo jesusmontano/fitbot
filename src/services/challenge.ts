@@ -1,9 +1,14 @@
 import { getConfig } from './config';
 import random from 'random';
 import { render } from 'eta';
-import { Challenge, Count, CountRange, Exercise, ScheduleType } from '../types';
+import { Challenge, Count, CountRange, Delay, Exercise, ScheduleType, TimeUnit } from '../types';
 import { getUsers, sendChallengeMessage } from './slack';
 import arrayShuffle from 'array-shuffle';
+import { storeChallenge } from './database';
+import { getLoggerByFilename } from '../util/logger';
+import { Logger } from 'log4js';
+
+const log: Logger = getLoggerByFilename(__filename);
 
 const getCount = (countRange: CountRange): Count => {
 	const number = random.int(countRange.min, countRange.max);
@@ -47,29 +52,52 @@ export const generateChallenge = async (): Promise<Challenge> => {
 	};
 };
 
-const getNextExerciseDelayMinutes = async (scheduleType: ScheduleType): Promise<number> => {
+const getValueInMs = (value: number, unit: TimeUnit) => {
+	switch (unit) {
+		case TimeUnit.Seconds:
+			return value * 1000;
+		case TimeUnit.Minutes:
+			return value * 1000 * 60;
+		case TimeUnit.Hours:
+			return value * 1000 * 60 * 60;
+		default:
+			log.info(`Unexpected time unit.`);
+			process.exit(1);
+	}
+};
+
+const getNextExerciseDelaySeconds = async (scheduleType: ScheduleType): Promise<Delay> => {
 	if (scheduleType === ScheduleType.Immediate) {
-		return 0;
+		return {
+			value: 0,
+			unit: TimeUnit.Seconds,
+			valueInMs: 0,
+		};
 	}
 	const config = await getConfig();
-	return random.int(config.nextExerciseDelayMinutes.min, config.nextExerciseDelayMinutes.max);
+	const value = random.int(config.nextExerciseDelay.min, config.nextExerciseDelay.max);
+	const unit = config.nextExerciseDelay.unit;
+	const valueInMs = getValueInMs(value, unit);
+	return { value, unit, valueInMs };
 };
 
 let scheduledChallengeTimer: NodeJS.Timeout | null = null;
 
 const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
-	const delayMinutes = await getNextExerciseDelayMinutes(scheduleType);
-	if (delayMinutes > 0) {
-		console.log(`Scheduling challenge in ${delayMinutes} minute(s)`);
+	const delay = await getNextExerciseDelaySeconds(scheduleType);
+	if (delay.value > 0) {
+		log.info(`Scheduling challenge in ${delay.value} ${delay.unit}(s)`);
 	}
 	if (scheduledChallengeTimer !== null) {
 		clearTimeout(scheduledChallengeTimer);
 	}
 	scheduledChallengeTimer = setTimeout(async () => {
 		const challenge = await generateChallenge();
+		log.info('Sending challenge', challenge);
+		storeChallenge(challenge);
 		await sendChallengeMessage(challenge);
 		scheduleChallenge(ScheduleType.Random);
-	}, delayMinutes * 1000 * 60);
+	}, delay.valueInMs);
 };
 
 export { scheduleChallenge };
