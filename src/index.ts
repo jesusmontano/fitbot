@@ -1,9 +1,9 @@
-import { App } from '@slack/bolt';
+import { App, LogLevel } from '@slack/bolt';
 import { showLogo } from './services/logo';
 import { scheduleChallenge } from './services/challenge';
 import { validateEnvs } from './util/helpers';
 import { ScheduleType } from './types';
-import { registerTriggers } from './services/commands';
+import { registerCommands } from './services/commands';
 import { getLoggerByFilename } from './util/logger';
 import { Logger } from 'log4js';
 
@@ -16,9 +16,10 @@ validateEnvs(['SLACK_SIGNING_SECRET', 'SLACK_BOT_TOKEN', 'SLACK_CHANNEL_ID', 'SL
 const app = new App({
 	token: process.env.SLACK_BOT_TOKEN,
 	signingSecret: process.env.SLACK_SIGNING_SECRET,
+	logLevel: LogLevel.INFO,
 });
 
-registerTriggers(app);
+registerCommands(app);
 
 (async () => {
 	const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;

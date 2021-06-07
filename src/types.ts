@@ -58,8 +58,24 @@ enum ScheduleType {
 }
 
 enum CompleteChallengeResult {
+	AlreadyCompleted,
 	Completed,
 	NotFound,
 }
+interface Score {
+	user_id: string;
+	achievement_count: number;
+}
 
-export { Challenge, CountRange, Count, Exercise, Config, ScheduleType, CompleteChallengeResult, Delay, TimeUnit };
+export {
+	Challenge,
+	CountRange,
+	Count,
+	Exercise,
+	Config,
+	ScheduleType,
+	CompleteChallengeResult,
+	Delay,
+	TimeUnit,
+	Score,
+};
