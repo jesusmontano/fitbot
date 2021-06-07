@@ -37,7 +37,14 @@ interface Config {
 	exercises: Exercise[];
 	messages: {
 		congratulations: string[];
+		encouragementEmojis: string[];
 	};
+	messageDelaySeconds: number;
+}
+
+enum MessageType {
+	Congratulations = 'congratulations',
+	EncouragementEmojis = 'encouragementEmojis',
 }
 
 interface Count {
@@ -62,9 +69,17 @@ enum CompleteChallengeResult {
 	Completed,
 	NotFound,
 }
+
 interface Score {
-	user_id: string;
-	achievement_count: number;
+	userId: string;
+	achievementCount: number;
+	exerciseCounts?: ExerciseCount[];
+}
+
+interface ExerciseCount {
+	exerciseName: string;
+	count: number;
+	countUnit: string;
 }
 
 export {
@@ -78,4 +93,6 @@ export {
 	Delay,
 	TimeUnit,
 	Score,
+	MessageType,
+	ExerciseCount,
 };

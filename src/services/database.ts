@@ -1,5 +1,5 @@
 import DB from 'better-sqlite3-helper';
-import { Challenge, CompleteChallengeResult, Score } from '../types';
+import { Challenge, CompleteChallengeResult, ExerciseCount, Score } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 DB({
@@ -19,7 +19,7 @@ const storeChallenge = (challenge: Challenge) => {
 	DB().insert('Challenge', {
 		id: uuidv4(),
 		exercise_name: challenge.name,
-		count_number: challenge.count.number,
+		count: challenge.count.number,
 		count_unit: challenge.count.unit,
 		date: Date.now(),
 	});
@@ -38,7 +38,7 @@ const completeChallenge = (userId: string): CompleteChallengeResult => {
 		id: challenge.id,
 		user_id: userId,
 		exercise_name: challenge.exercise_name,
-		count_number: challenge.count_number,
+		count: challenge.count,
 		count_unit: challenge.count_unit,
 		date: challenge.date,
 	});
@@ -47,22 +47,30 @@ const completeChallenge = (userId: string): CompleteChallengeResult => {
 
 const getTopScores = (count: number): Score[] => {
 	return DB().query(
-		`SELECT user_id, COUNT(*) as achievement_count FROM Achievements GROUP BY user_id ORDER BY achievement_count DESC LIMIT ${count}`,
+		`SELECT user_id as userId, COUNT(*) as achievementCount FROM Achievements GROUP BY user_id ORDER BY achievementCount DESC LIMIT ${count}`,
 	);
 };
 
 const getUserScore = (userId: string): Score => {
-	const achievement: Score | undefined = DB().queryFirstRow(
-		'SELECT user_id, COUNT(*) as achievement_count FROM Achievements WHERE user_id=?',
+	const score: Score | undefined = DB().queryFirstRow(
+		'SELECT user_id as userId, COUNT(*) as achievementCount FROM Achievements WHERE user_id=?',
 		userId,
 	);
-	if (achievement === undefined) {
+	if (score === undefined) {
 		return {
-			user_id: userId,
-			achievement_count: 0,
+			userId: userId,
+			achievementCount: 0,
+			exerciseCounts: [],
 		};
 	}
-	return achievement;
+	const exerciseCounts: ExerciseCount[] = DB().query(
+		'SELECT exercise_name as exerciseName, SUM(count) as count, count_unit as countUnit FROM Achievements WHERE user_id=? GROUP BY exerciseName',
+		userId,
+	);
+	return {
+		...score,
+		exerciseCounts,
+	};
 };
 
 export { storeChallenge, completeChallenge, getTopScores, getUserScore };

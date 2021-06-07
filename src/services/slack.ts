@@ -1,7 +1,9 @@
 import { WebClient, LogLevel } from '@slack/web-api';
-import { Challenge } from 'types';
+import { Challenge, ScheduleType } from '../types';
 import { getLoggerByFilename } from '../util/logger';
 import { Logger } from 'log4js';
+import { setTimeout } from 'timers/promises';
+import { getConfig } from './config';
 
 const log: Logger = getLoggerByFilename(__filename);
 
@@ -35,36 +37,55 @@ const getUsersList = (users: string[]): string => {
 	return users.map((user) => `<@${user}>`).join(' ');
 };
 
-const sendChallengeMessage = async (challenge: Challenge) => {
+const sendChallengeMessage = async (challenge: Challenge, scheduleType: ScheduleType) => {
 	const channel = process.env.SLACK_CHANNEL_ID!;
 	const usersList = getUsersList(challenge.users);
+	const config = await getConfig();
+	if (scheduleType === ScheduleType.Random) {
+		const text = `*Hey there!* :wave: I'm FitBot. I'm here to help you get in shape!`;
+		await client.chat.postMessage({
+			channel,
+			text,
+			blocks: [
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text,
+					},
+				},
+			],
+		});
+		await setTimeout(config.messageDelaySeconds * 1000);
+	}
+	const challengeText =
+		`*Roll Call! :mega:* ${usersList}! You've been selected to do the following challenge:\n` +
+		`*Challenge! :stopwatch:* ${challenge.message}`;
 	await client.chat.postMessage({
 		channel,
-		text: `:mega:* ${usersList}! You've been selected to complete the following challenge! ${challenge.message}`,
+		text: challengeText,
 		blocks: [
 			{
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: "Hey there! :wave: I'm FitBot. I'm here to help you get in shape!",
+					text: challengeText,
 				},
 			},
+		],
+	});
+	await setTimeout(config.messageDelaySeconds * 1000);
+	const helpText = `Let me know you've completed it by typing \`/did-it\`\n For more commands type \`/fitbot-help\``;
+	await client.chat.postMessage({
+		channel,
+		text: helpText,
+		blocks: [
 			{
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: `*Roll Call! :mega:* ${usersList}! You've been selected to complete the following challenge.`,
+					text: helpText,
 				},
-			},
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
-					text: `*Challenge! :stopwatch:* ${challenge.message}`,
-				},
-			},
-			{
-				type: 'divider',
 			},
 		],
 	});

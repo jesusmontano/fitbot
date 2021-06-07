@@ -18,10 +18,6 @@ const getCount = (countRange: CountRange): Count => {
 	};
 };
 
-const getMessage = (messageTemplate: string, count: Count): string => {
-	return render(messageTemplate, count) as string;
-};
-
 const getRandomExercise = async (): Promise<Exercise> => {
 	const config = await getConfig();
 	const exerciseId = random.int(0, config.exercises.length - 1);
@@ -43,7 +39,7 @@ export const generateChallenge = async (): Promise<Challenge> => {
 	const users = await getRandomUsers();
 	const { name, messageTemplate, countRange } = exercise;
 	const count = getCount(countRange);
-	const message = getMessage(messageTemplate, count);
+	const message = render(messageTemplate, count, { autoEscape: false }) as string;
 	return {
 		name,
 		message,
@@ -86,7 +82,7 @@ let scheduledChallengeTimer: NodeJS.Timeout | null = null;
 const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
 	const delay = await getNextExerciseDelaySeconds(scheduleType);
 	if (delay.value > 0) {
-		log.info(`Scheduling challenge in ${delay.value} ${delay.unit}(s)`);
+		log.info(`Scheduling a challenge in ${delay.value} ${delay.unit}(s)`);
 	}
 	if (scheduledChallengeTimer !== null) {
 		clearTimeout(scheduledChallengeTimer);
@@ -95,7 +91,7 @@ const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
 		const challenge = await generateChallenge();
 		log.info('Sending challenge', challenge);
 		storeChallenge(challenge);
-		await sendChallengeMessage(challenge);
+		await sendChallengeMessage(challenge, scheduleType);
 		scheduleChallenge(ScheduleType.Random);
 	}, delay.valueInMs);
 };
