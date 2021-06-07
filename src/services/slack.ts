@@ -50,9 +50,6 @@ const sendChallengeMessage = async (challenge: Challenge) => {
 				},
 			},
 			{
-				type: 'divider',
-			},
-			{
 				type: 'section',
 				text: {
 					type: 'mrkdwn',

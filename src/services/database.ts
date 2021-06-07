@@ -1,10 +1,6 @@
 import DB from 'better-sqlite3-helper';
-import { Challenge, CompleteChallengeResult } from '../types';
-import { getLoggerByFilename } from '../util/logger';
-import { Logger } from 'log4js';
+import { Challenge, CompleteChallengeResult, Score } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-
-const log: Logger = getLoggerByFilename(__filename);
 
 DB({
 	path: './data/database.db',
@@ -19,7 +15,9 @@ DB({
 });
 
 const storeChallenge = (challenge: Challenge) => {
-	DB().replace('Challenge', {
+	DB().prepare('DELETE from Challenge').run();
+	DB().insert('Challenge', {
+		id: uuidv4(),
 		exercise_name: challenge.name,
 		count_number: challenge.count.number,
 		count_unit: challenge.count.unit,
@@ -32,30 +30,39 @@ const completeChallenge = (userId: string): CompleteChallengeResult => {
 	if (challenge === undefined) {
 		return CompleteChallengeResult.NotFound;
 	}
+	const achievement = DB().queryFirstRow('SELECT * FROM Achievements WHERE user_id=? AND id=?', userId, challenge.id);
+	if (achievement !== undefined) {
+		return CompleteChallengeResult.AlreadyCompleted;
+	}
 	DB().insert('Achievements', {
-		id: uuidv4(),
+		id: challenge.id,
 		user_id: userId,
 		exercise_name: challenge.exercise_name,
 		count_number: challenge.count_number,
 		count_unit: challenge.count_unit,
 		date: challenge.date,
 	});
-	log.info(DB().queryFirstRow('SELECT * FROM Achievements'));
-	// console.log(`Top Scores...`);
-	// console.log(getTopScores());
-	// console.log(`User Score...`);
-	// console.log(getUserScore(userId));
 	return CompleteChallengeResult.Completed;
 };
 
-const getTopScores = () => {
+const getTopScores = (count: number): Score[] => {
 	return DB().query(
-		'SELECT user_id, COUNT(*) as achievement_count FROM Achievements GROUP BY user_id ORDER BY achievement_count DESC LIMIT 3',
+		`SELECT user_id, COUNT(*) as achievement_count FROM Achievements GROUP BY user_id ORDER BY achievement_count DESC LIMIT ${count}`,
 	);
 };
 
-const getUserScore = (userId: string) => {
-	return DB().query('SELECT COUNT(*) as achievement_count FROM achievements WHERE user_id=?', userId);
+const getUserScore = (userId: string): Score => {
+	const achievement: Score | undefined = DB().queryFirstRow(
+		'SELECT user_id, COUNT(*) as achievement_count FROM Achievements WHERE user_id=?',
+		userId,
+	);
+	if (achievement === undefined) {
+		return {
+			user_id: userId,
+			achievement_count: 0,
+		};
+	}
+	return achievement;
 };
 
 export { storeChallenge, completeChallenge, getTopScores, getUserScore };
