@@ -1,14 +1,14 @@
 {
 	"nextExerciseDelay": {
 		"min": 10,
-		"max": 90,
+		"max": 80,
 		"unit": "minutes"
 	},
 	"minimumExerciseUserGroupSize": 2,
 	"exercises": [
 		{
-			"name": "Pushup",
-			"messageTemplate": "Do <%= it.number %> pushups!",
+			"name": "Pushups",
+			"messageTemplate": "Do *<%= it.number %>* *pushups*!",
 			"countRange": {
 				"min": 5,
 				"max": 15,
@@ -16,19 +16,88 @@
 			}
 		},
 		{
-			"name": "Ski sit",
-			"messageTemplate": "Do a ski sit for <%= it.number %> seconds!",
+			"name": "Desk pushups",
+			"messageTemplate": "Do *<%= it.number %>* *desk pushups*!",
+			"countRange": {
+				"min": 10,
+				"max": 30,
+				"unit": "reps"
+			}
+		},
+		{
+			"name": "Chair squats",
+			"messageTemplate": "Do *<%= it.number %>* *chair squats*!",
+			"countRange": {
+				"min": 10,
+				"max": 20,
+				"unit": "reps"
+			}
+		},
+		{
+			"name": "Pretend jump rope",
+			"messageTemplate": "Do *pretend jump rope* for *<%= it.number %>* seconds!",
 			"countRange": {
 				"min": 30,
 				"max": 90,
 				"unit": "seconds"
 			}
+		},
+		{
+			"name": "Wall sit",
+			"messageTemplate": "Do a *wall sit* for *<%= it.number %>* seconds!",
+			"countRange": {
+				"min": 30,
+				"max": 90,
+				"unit": "seconds"
+			}
+		},
+		{
+			"name": "Chair dips",
+			"messageTemplate": "Do *<%= it.number %>* *chair dips*!",
+			"countRange": {
+				"min": 10,
+				"max": 30,
+				"unit": "reps"
+			}
+		},
+		{
+			"name": "Lunges",
+			"messageTemplate": "Do *<%= it.number %>* *lunges* with each leg!",
+			"countRange": {
+				"min": 5,
+				"max": 10,
+				"unit": "reps"
+			}
+		},
+		{
+			"name": "Calf raises",
+			"messageTemplate": "Do *<%= it.number %>* *calf raises*!",
+			"countRange": {
+				"min": 10,
+				"max": 30,
+				"unit": "reps"
+			}
 		}
 	],
 	"messages": {
 		"congratulations": [
-			"Well done ${name}!",
-			"Good work ${name}!"
+			"*Well done* <%= it.user %>!",
+			"*Good work* <%= it.user %>!",
+			"*Congratulations* on completing your challenge, <%= it.user %>!",
+			"*Good effort* <%= it.user %>, keep it up!",
+			"*Getting stronger*, <%= it.user %>, keep going!",
+			"*Awesome*, <%= it.user %>, keep going!"
+		],
+		"encouragementEmojis": [
+			":tada:",
+			":clap:",
+			":muscle:",
+			":+1:",
+			":raised_hands:",
+			":ok_hand:",
+			":the_horns:",
+			":fist:"
 		]
-	}
+	},
+	"messageDelaySeconds": 2
 }
