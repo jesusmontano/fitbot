@@ -1,10 +1,10 @@
-import { getLoggerByFilename } from './logger';
+import { getLoggerByUrl } from './logger';
 import { Logger } from 'log4js';
 import { Config, MessageType } from '../types';
 import { getConfig } from '../services/config';
 import random from 'random';
 
-const log: Logger = getLoggerByFilename(__filename);
+const log: Logger = getLoggerByUrl(import.meta.url);
 
 const getRandomUser = (users: string[]): string => {
 	return users[Math.floor(Math.random() * users.length)];

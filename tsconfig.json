@@ -1,19 +1,15 @@
 {
-	"compilerOptions": {
-		"lib": ["ES2020"],
-		"target": "ES2020",
-		"module": "commonjs",
-		"outDir": "target",
-		"sourceMap": true,
-		"strict": true,
-		"noUnusedLocals": true,
-		"baseUrl": "src",
-		"moduleResolution": "node",
-		"resolveJsonModule": true,
-		"esModuleInterop": true,
-		"allowJs": true
-	},
-	"include": [
-		"src/**/*.ts"
-	],
+    "compilerOptions": {
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "src",
+        "module": "es2020",
+        "moduleResolution": "node",
+        "noUnusedLocals": true,
+        "outDir": "target",
+        "resolveJsonModule": true,
+        "sourceMap": true
+    },
+    "extends": "@tsconfig/node16/tsconfig.json",
+    "include": ["src/**/*.ts"]
 }
