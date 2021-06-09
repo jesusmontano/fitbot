@@ -1,22 +1,22 @@
-import { App, LogLevel } from '@slack/bolt';
+import bolt from '@slack/bolt';
 import { showLogo } from './services/logo';
 import { scheduleChallenge } from './services/challenge';
 import { validateEnvs } from './util/helpers';
 import { ScheduleType } from './types';
 import { registerCommands } from './services/commands';
-import { getLoggerByFilename } from './util/logger';
+import { getLoggerByUrl } from './util/logger';
 import { Logger } from 'log4js';
 
-const log: Logger = getLoggerByFilename(__filename);
+const log: Logger = getLoggerByUrl(import.meta.url);
 
 showLogo();
 
 validateEnvs(['SLACK_SIGNING_SECRET', 'SLACK_BOT_TOKEN', 'SLACK_CHANNEL_ID', 'SLACK_BOT_ID']);
 
-const app = new App({
+const app = new bolt.App({
 	token: process.env.SLACK_BOT_TOKEN,
 	signingSecret: process.env.SLACK_SIGNING_SECRET,
-	logLevel: LogLevel.INFO,
+	logLevel: bolt.LogLevel.INFO,
 });
 
 registerCommands(app);

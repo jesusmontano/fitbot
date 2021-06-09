@@ -2,13 +2,14 @@ import { getConfig } from './config';
 import random from 'random';
 import { render } from 'eta';
 import { Challenge, Count, CountRange, Delay, Exercise, ScheduleType, TimeUnit } from '../types';
-import { getUsers, sendChallengeMessage } from './slack';
+import { getActiveUsers, getUsers, GET_USER_PRESENCE_CHUNK_SIZE, sendChallengeMessage } from './slack';
 import arrayShuffle from 'array-shuffle';
 import { storeChallenge } from './database';
-import { getLoggerByFilename } from '../util/logger';
+import { getLoggerByUrl } from '../util/logger';
 import { Logger } from 'log4js';
+import { sendNotifyOfSlownessMessage } from './slack';
 
-const log: Logger = getLoggerByFilename(__filename);
+const log: Logger = getLoggerByUrl(import.meta.url);
 
 const getCount = (countRange: CountRange): Count => {
 	const number = random.int(countRange.min, countRange.max);
@@ -24,9 +25,12 @@ const getRandomExercise = async (): Promise<Exercise> => {
 	return config.exercises[exerciseId];
 };
 
-const getRandomUsers = async (): Promise<string[]> => {
-	const users = await getUsers();
-	const shuffledUsers = arrayShuffle(users);
+const getRandomActiveUsers = async (users: string[]): Promise<string[]> => {
+	const activeUsers = await getActiveUsers(users);
+	if (activeUsers.length === 0) {
+		return activeUsers;
+	}
+	const shuffledUsers = arrayShuffle(activeUsers);
 	const config = await getConfig();
 	const minGroupSize =
 		config.minimumExerciseUserGroupSize > users.length ? users.length : config.minimumExerciseUserGroupSize;
@@ -34,9 +38,9 @@ const getRandomUsers = async (): Promise<string[]> => {
 	return shuffledUsers.slice(0, exerciseUserGroupSize);
 };
 
-export const generateChallenge = async (): Promise<Challenge> => {
+export const generateChallenge = async (users: string[]): Promise<Challenge> => {
 	const exercise = await getRandomExercise();
-	const users = await getRandomUsers();
+	const randomActiveUsers = await getRandomActiveUsers(users);
 	const { name, messageTemplate, countRange } = exercise;
 	const count = getCount(countRange);
 	const message = render(messageTemplate, count, { autoEscape: false }) as string;
@@ -44,7 +48,7 @@ export const generateChallenge = async (): Promise<Challenge> => {
 		name,
 		message,
 		count,
-		users,
+		users: randomActiveUsers,
 	};
 };
 
@@ -88,7 +92,15 @@ const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
 		clearTimeout(scheduledChallengeTimer);
 	}
 	scheduledChallengeTimer = setTimeout(async () => {
-		const challenge = await generateChallenge();
+		const users = await getUsers();
+		if (scheduleType === ScheduleType.Immediate && users.length > GET_USER_PRESENCE_CHUNK_SIZE) {
+			sendNotifyOfSlownessMessage(users.length);
+		}
+		const challenge = await generateChallenge(users);
+		if (challenge.users.length === 0) {
+			log.info('No active users found');
+			return scheduleChallenge(ScheduleType.Random);
+		}
 		log.info('Sending challenge', challenge);
 		storeChallenge(challenge);
 		await sendChallengeMessage(challenge, scheduleType);

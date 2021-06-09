@@ -1,7 +1,7 @@
-import { getLoggerByFilename } from '../util/logger';
+import { getLoggerByUrl } from '../util/logger';
 import { Logger } from 'log4js';
 
-const log: Logger = getLoggerByFilename(__filename);
+const log: Logger = getLoggerByUrl(import.meta.url);
 
 const logo = String.raw`
    ___  _  _    _             _     _      ___  

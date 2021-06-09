@@ -2,7 +2,7 @@ import { App, Middleware, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import { CompleteChallengeResult, ExerciseCount, MessageType, ScheduleType, Score } from '../types';
 import { scheduleChallenge } from './challenge';
 import { completeChallenge, getTopScores, getUserScore } from './database';
-import { getLoggerByFilename } from '../util/logger';
+import { getLoggerByUrl } from '../util/logger';
 import { Logger } from 'log4js';
 import { getClient } from './slack';
 import { getRandomMessage } from '../util/helpers';
@@ -10,7 +10,7 @@ import { render } from 'eta';
 import { getConfig } from './config';
 import { setTimeout } from 'timers/promises';
 
-const log: Logger = getLoggerByFilename(__filename);
+const log: Logger = getLoggerByUrl(import.meta.url);
 
 const registerCommand = (app: App, trigger: string | RegExp, callback: Middleware<SlackCommandMiddlewareArgs>) => {
 	log.info(`Registering command trigger ${trigger}`);
@@ -196,14 +196,14 @@ const registerCommands = (app: App) => {
 	registerCommand(app, '/fitbot-help', async ({ command, ack, say }: SlackCommandMiddlewareArgs) => {
 		log.info(`Received ${command.command} from ${command.user_id}`);
 		await ack();
+		const text =
+			`\`/lets-go\`  :point_right:  Start a FitBot challenge.\n` +
+			`\`/did-it\`  :point_right:  Tell FitBot you've completed a challenge.\n` +
+			`\`/my-score\`  :point_right:  See how many challenges you've completed.\n` +
+			`\`/top-scores\`  :point_right:  See the challenges leaderboard.\n` +
+			`\`/help\`  :point_right:  Show this help message.`;
 		await say({
-			text:
-				`*Here's the list of commands used by FitBot:*\n` +
-				`\`/lets-go\` :point_right: Start a FitBot challenge.\n` +
-				`\`/did-it\` :point_right: Tell FitBot you've completed a challenge.\n` +
-				`\`/my-score\` :point_right: See how many challenges you've completed.\n` +
-				`\`/top-scores\` :point_right: See the challenges leaderboard.\n` +
-				`\`/help\` :point_right: Show this help message.`,
+			text,
 			blocks: [
 				{
 					type: 'section',
@@ -216,12 +216,7 @@ const registerCommands = (app: App) => {
 					type: 'section',
 					text: {
 						type: 'mrkdwn',
-						text:
-							`\`/lets-go\`  :point_right:  Start a FitBot challenge.\n` +
-							`\`/did-it\`  :point_right:  Tell FitBot you've completed a challenge.\n` +
-							`\`/my-score\`  :point_right:  See how many challenges you've completed.\n` +
-							`\`/top-scores\`  :point_right:  See the challenges leaderboard.\n` +
-							`\`/help\`  :point_right:  Show this help message.`,
+						text,
 					},
 				},
 			],
