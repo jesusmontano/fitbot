@@ -1,6 +1,6 @@
 enum CountUnit {
-	Reps,
-	Seconds,
+	Reps = 'reps',
+	Seconds = 'seconds',
 }
 
 enum TimeUnit {
@@ -82,6 +82,23 @@ interface ExerciseCount {
 	countUnit: string;
 }
 
+interface ChallengeEntity {
+	id: string;
+	exerciseName: string;
+	count: number;
+	countUnit: CountUnit;
+	date: Date;
+}
+
+interface AchievementEntity {
+	id: string;
+	userId: string;
+	exerciseName: string;
+	count: number;
+	countUnit: CountUnit;
+	date: Date;
+}
+
 export {
 	Challenge,
 	CountRange,
@@ -95,4 +112,6 @@ export {
 	Score,
 	MessageType,
 	ExerciseCount,
+	ChallengeEntity,
+	AchievementEntity,
 };

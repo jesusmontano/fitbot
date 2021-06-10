@@ -1,7 +1,5 @@
-'use strict';
-
-import log4js from 'log4js';
 import { URL } from 'url';
+import log4js from 'log4js';
 
 const TRIM_LENGTH = 1024;
 
