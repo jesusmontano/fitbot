@@ -1,12 +1,13 @@
-import { WebClient, LogLevel } from '@slack/web-api';
-import { Challenge, ScheduleType } from '../types';
-import { getLoggerByUrl } from '../util/logger';
+import _ from 'lodash';
 import { Logger } from 'log4js';
 import { setTimeout } from 'timers/promises';
-import { getConfig } from './config';
-import pReduce from 'p-reduce';
+import { WebClient, LogLevel } from '@slack/web-api';
 import pMap from 'p-map';
-import _ from 'lodash';
+import pReduce from 'p-reduce';
+
+import { Challenge, ScheduleType } from '../types';
+import { getConfig } from './config';
+import { getLoggerByUrl } from '../util/logger';
 
 const log: Logger = getLoggerByUrl(import.meta.url);
 
@@ -49,7 +50,7 @@ const getActiveUsers = async (users: string[]): Promise<string[]> => {
 	const result: string[] = await pReduce(
 		usersChunks,
 		async (output: string[], usersChunk: string[], index): Promise<string[]> => {
-			log.info(`Getting user presence, chunk ${index + 1}/${usersChunks.length}`);
+			log.info(`Getting user presence, chunk ${index + 1}/${usersChunks.length} (${usersChunk.length} users)`);
 			const usersPresence = await pMap(usersChunk, (user) => {
 				return client.users.getPresence({ user });
 			});
@@ -112,7 +113,8 @@ const sendChallengeMessage = async (challenge: Challenge, scheduleType: Schedule
 		await setTimeout(config.messageDelaySeconds * 1000);
 	}
 	const challengeText =
-		`*Roll Call! :mega:* ${usersList}! You've been selected to do the following challenge:\n` +
+		`*Roll Call! :mega:* ${usersList}!\n` +
+		`You've been selected to do the following challenge: (but everyone can join in)\n` +
 		`*Challenge! :stopwatch:* ${challenge.message}`;
 	await client.chat.postMessage({
 		channel,

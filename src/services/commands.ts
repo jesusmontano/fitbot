@@ -1,14 +1,16 @@
 import { App, Middleware, SlackCommandMiddlewareArgs } from '@slack/bolt';
-import { CompleteChallengeResult, ExerciseCount, MessageType, ScheduleType, Score } from '../types';
-import { scheduleChallenge } from './challenge';
-import { completeChallenge, getTopScores, getUserScore } from './database';
-import { getLoggerByUrl } from '../util/logger';
 import { Logger } from 'log4js';
-import { getClient } from './slack';
-import { getRandomMessage } from '../util/helpers';
 import { render } from 'eta';
-import { getConfig } from './config';
 import { setTimeout } from 'timers/promises';
+
+import { completeChallenge } from '../DAO/challenges';
+import { CompleteChallengeResult, ExerciseCount, MessageType, ScheduleType, Score } from '../types';
+import { getClient } from './slack';
+import { getConfig } from './config';
+import { getLoggerByUrl } from '../util/logger';
+import { getRandomMessage } from '../util/helpers';
+import { getTopScores, getUserScore } from '../DAO/achievements';
+import { scheduleChallenge } from './challenge';
 
 const log: Logger = getLoggerByUrl(import.meta.url);
 
@@ -68,7 +70,7 @@ const registerCommands = (app: App) => {
 	registerCommand(app, '/top-scores', async ({ command, ack, say }: SlackCommandMiddlewareArgs) => {
 		log.info(`Received ${command.command} from ${command.user_id}`);
 		await ack();
-		const topScores = getTopScores(10);
+		const topScores = await getTopScores(10);
 		if (topScores.length === 0) {
 			const text = `No challenges have been completed, yet!`;
 			await say({
@@ -114,7 +116,7 @@ const registerCommands = (app: App) => {
 	registerCommand(app, '/my-score', async ({ command, ack, say }: SlackCommandMiddlewareArgs) => {
 		log.info(`Received ${command.command} from ${command.user_id}`);
 		await ack();
-		const myScore = getUserScore(command.user_id);
+		const myScore = await getUserScore(command.user_id);
 		if (myScore.exerciseCounts?.length === 0) {
 			const text = `You haven't completed any challenges yet, <@${command.user_id}>!`;
 			await say({
@@ -156,7 +158,7 @@ const registerCommands = (app: App) => {
 	registerCommand(app, '/did-it', async ({ command, ack, say }: SlackCommandMiddlewareArgs) => {
 		log.info(`Received ${command.command} from ${command.user_id}`);
 		await ack();
-		const result = completeChallenge(command.user_id);
+		const result = await completeChallenge(command.user_id);
 
 		if (result === CompleteChallengeResult.Completed) {
 			const encouragementEmoji = await getRandomMessage(MessageType.EncouragementEmojis);

@@ -1,11 +1,12 @@
-import bolt from '@slack/bolt';
-import { showLogo } from './services/logo';
-import { scheduleChallenge } from './services/challenge';
-import { validateEnvs } from './util/helpers';
-import { ScheduleType } from './types';
-import { registerCommands } from './services/commands';
-import { getLoggerByUrl } from './util/logger';
 import { Logger } from 'log4js';
+import bolt from '@slack/bolt';
+
+import { getLoggerByUrl } from './util/logger';
+import { registerCommands } from './services/commands';
+import { scheduleChallenge } from './services/challenge';
+import { ScheduleType } from './types';
+import { showLogo } from './services/logo';
+import { validateEnvs } from './util/helpers';
 
 const log: Logger = getLoggerByUrl(import.meta.url);
 
