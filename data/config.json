@@ -1,7 +1,7 @@
 {
 	"nextExerciseDelay": {
-		"min": 10,
-		"max": 80,
+		"min": 15,
+		"max": 90,
 		"unit": "minutes"
 	},
 	"minimumExerciseUserGroupSize": 2,

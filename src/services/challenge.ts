@@ -1,13 +1,14 @@
-import { getConfig } from './config';
-import random from 'random';
+import { Logger } from 'log4js';
 import { render } from 'eta';
+import arrayShuffle from 'array-shuffle';
+import random from 'random';
+
 import { Challenge, Count, CountRange, Delay, Exercise, ScheduleType, TimeUnit } from '../types';
 import { getActiveUsers, getUsers, GET_USER_PRESENCE_CHUNK_SIZE, sendChallengeMessage } from './slack';
-import arrayShuffle from 'array-shuffle';
-import { storeChallenge } from './database';
+import { getConfig } from './config';
 import { getLoggerByUrl } from '../util/logger';
-import { Logger } from 'log4js';
 import { sendNotifyOfSlownessMessage } from './slack';
+import { storeChallenge } from '../DAO/challenges';
 
 const log: Logger = getLoggerByUrl(import.meta.url);
 
@@ -102,7 +103,7 @@ const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
 			return scheduleChallenge(ScheduleType.Random);
 		}
 		log.info('Sending challenge', challenge);
-		storeChallenge(challenge);
+		await storeChallenge(challenge);
 		await sendChallengeMessage(challenge, scheduleType);
 		scheduleChallenge(ScheduleType.Random);
 	}, delay.valueInMs);

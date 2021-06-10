@@ -1,4 +1,5 @@
 import { readFile } from 'fs/promises';
+
 import { Config } from '../types';
 
 const CONFIG_FILE_PATH = './data/config.json';

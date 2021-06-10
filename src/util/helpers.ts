@@ -1,8 +1,9 @@
-import { getLoggerByUrl } from './logger';
 import { Logger } from 'log4js';
+import random from 'random';
+
 import { Config, MessageType } from '../types';
 import { getConfig } from '../services/config';
-import random from 'random';
+import { getLoggerByUrl } from './logger';
 
 const log: Logger = getLoggerByUrl(import.meta.url);
 
