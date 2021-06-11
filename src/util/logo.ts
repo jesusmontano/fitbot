@@ -1,4 +1,4 @@
-import { getLoggerByUrl } from '../util/logger';
+import { getLoggerByUrl } from './logger';
 import { Logger } from 'log4js';
 
 const log: Logger = getLoggerByUrl(import.meta.url);

@@ -20,6 +20,7 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/src/index.ts",
+			"outputCapture": "std"
 		}
 	]
 }

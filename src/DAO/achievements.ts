@@ -1,5 +1,5 @@
 import { ExerciseCount, Score } from '../types';
-import { knex } from '../services/database';
+import { knex } from '../util/database';
 
 const getTopScores = async (count: number): Promise<Score[]> => {
 	return knex('Achievements')

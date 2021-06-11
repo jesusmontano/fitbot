@@ -3,10 +3,10 @@ import bolt from '@slack/bolt';
 
 import { getLoggerByUrl } from './util/logger';
 import { registerCommands } from './services/commands';
-import { scheduleChallenge } from './services/challenge';
+import { cancelUnstartedChallenge, scheduleChallenge } from './services/challenge';
 import { ScheduleType } from './types';
-import { showLogo } from './services/logo';
-import { validateEnvs } from './util/helpers';
+import { showLogo } from './util/logo';
+import { validateEnvs } from './util/env';
 
 const log: Logger = getLoggerByUrl(import.meta.url);
 
@@ -26,6 +26,7 @@ registerCommands(app);
 	const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 	await app.start(port);
 	log.info(`Started app on port ${port}`);
+	await cancelUnstartedChallenge();
 	await scheduleChallenge(ScheduleType.Random);
 })();
 

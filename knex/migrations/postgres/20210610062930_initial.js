@@ -19,6 +19,7 @@ const up = async (knex) => {
 			count INTEGER NOT NULL,
 			count_unit TEXT NOT NULL,
 			date TIMESTAMP NOT NULL,
+			status TEXT NOT NULL,
 			PRIMARY KEY (id)
 		);
 	`);

@@ -90,19 +90,21 @@ npm run db:migrate production
 npm run start
 ```
 
-## Notes:
+## Notes
 
 * To remove the PostgreSQL docker instance, run the following command:
 
 ```bash
 docker/remove-and-clear-db.sh
 ```
+
 * To run FitBot on Heroku, add the following env variables:
 
 ```bash
 PGSSLMODE=require
 PGSSLMODE=no-verify
 ```
+
 * The `heroku-postbuild` step will compile typescript and run db migrate.
 * The `start` step will be triggered by heroku.
 
