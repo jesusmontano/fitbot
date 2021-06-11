@@ -3,12 +3,22 @@ import { render } from 'eta';
 import arrayShuffle from 'array-shuffle';
 import random from 'random';
 
-import { Challenge, Count, CountRange, Delay, Exercise, ScheduleType, TimeUnit } from '../types';
-import { getActiveUsers, getUsers, GET_USER_PRESENCE_CHUNK_SIZE, sendChallengeMessage } from './slack';
-import { getConfig } from './config';
+import {
+	Challenge,
+	ChallengeStatus,
+	Count,
+	CountRange,
+	Delay,
+	Exercise,
+	SlackAPIRate,
+	ScheduleType,
+	TimeUnit,
+} from '../types';
+import { getActiveUsers, getUsers, GET_USER_PRESENCE_CHUNK_SIZE } from './users';
+import { getConfig } from '../util/config';
 import { getLoggerByUrl } from '../util/logger';
-import { sendNotifyOfSlownessMessage } from './slack';
-import { storeChallenge } from '../DAO/challenges';
+import { sendChallengeMessage, sendNotifyOfSlownessMessage } from './messages';
+import { getChallengeStatus, getSlackAPIRate, storeChallenge, updateChallengeStatus } from '../DAO/challenges';
 
 const log: Logger = getLoggerByUrl(import.meta.url);
 
@@ -39,9 +49,8 @@ const getRandomActiveUsers = async (users: string[]): Promise<string[]> => {
 	return shuffledUsers.slice(0, exerciseUserGroupSize);
 };
 
-export const generateChallenge = async (users: string[]): Promise<Challenge> => {
+export const generateChallenge = async (): Promise<Challenge> => {
 	const exercise = await getRandomExercise();
-	const randomActiveUsers = await getRandomActiveUsers(users);
 	const { name, messageTemplate, countRange } = exercise;
 	const count = getCount(countRange);
 	const message = render(messageTemplate, count, { autoEscape: false }) as string;
@@ -49,7 +58,9 @@ export const generateChallenge = async (users: string[]): Promise<Challenge> => 
 		name,
 		message,
 		count,
-		users: randomActiveUsers,
+		users: [],
+		date: new Date(),
+		status: ChallengeStatus.GettingUserPresence,
 	};
 };
 
@@ -67,12 +78,18 @@ const getValueInMs = (value: number, unit: TimeUnit) => {
 	}
 };
 
-const getNextExerciseDelaySeconds = async (scheduleType: ScheduleType): Promise<Delay> => {
+const getNextChallengeDelaySeconds = async (scheduleType: ScheduleType): Promise<Delay> => {
 	if (scheduleType === ScheduleType.Immediate) {
 		return {
 			value: 0,
 			unit: TimeUnit.Seconds,
 			valueInMs: 0,
+		};
+	} else if (scheduleType === ScheduleType.SixtySecondDelay) {
+		return {
+			value: 60,
+			unit: TimeUnit.Seconds,
+			valueInMs: 60000,
 		};
 	}
 	const config = await getConfig();
@@ -84,8 +101,15 @@ const getNextExerciseDelaySeconds = async (scheduleType: ScheduleType): Promise<
 
 let scheduledChallengeTimer: NodeJS.Timeout | null = null;
 
+const cancelUnstartedChallenge = async () => {
+	const challengeStatus = await getChallengeStatus();
+	if (challengeStatus === ChallengeStatus.GettingUserPresence) {
+		await updateChallengeStatus(ChallengeStatus.Cancelled);
+	}
+};
+
 const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
-	const delay = await getNextExerciseDelaySeconds(scheduleType);
+	const delay = await getNextChallengeDelaySeconds(scheduleType);
 	if (delay.value > 0) {
 		log.info(`Scheduling a challenge in ${delay.value} ${delay.unit}(s)`);
 	}
@@ -93,20 +117,36 @@ const scheduleChallenge = async (scheduleType: ScheduleType): Promise<void> => {
 		clearTimeout(scheduledChallengeTimer);
 	}
 	scheduledChallengeTimer = setTimeout(async () => {
+		log.info('Challenge triggered.');
+		const slackAPIRate = await getSlackAPIRate();
+		if (slackAPIRate === SlackAPIRate.Throttled) {
+			const challengeStatus = await getChallengeStatus();
+			if (challengeStatus === ChallengeStatus.GettingUserPresence) {
+				log.info('Cancelling challenge due to challenge already being processed.');
+				return;
+			}
+			log.info('Postponing challenge due to Slack API rate throttling.');
+			await scheduleChallenge(ScheduleType.SixtySecondDelay);
+			return;
+		}
 		const users = await getUsers();
 		if (scheduleType === ScheduleType.Immediate && users.length > GET_USER_PRESENCE_CHUNK_SIZE) {
-			sendNotifyOfSlownessMessage(users.length);
+			await sendNotifyOfSlownessMessage(users.length);
 		}
-		const challenge = await generateChallenge(users);
+		const challenge = await generateChallenge();
+		await storeChallenge(challenge);
+		challenge.users = await getRandomActiveUsers(users);
 		if (challenge.users.length === 0) {
-			log.info('No active users found');
-			return scheduleChallenge(ScheduleType.Random);
+			log.info('Postponing challenge due to no active users found');
+			await updateChallengeStatus(ChallengeStatus.Cancelled);
+			await scheduleChallenge(ScheduleType.Random);
+			return;
 		}
 		log.info('Sending challenge', challenge);
-		await storeChallenge(challenge);
+		await updateChallengeStatus(ChallengeStatus.Started);
 		await sendChallengeMessage(challenge, scheduleType);
-		scheduleChallenge(ScheduleType.Random);
+		await scheduleChallenge(ScheduleType.Random);
 	}, delay.valueInMs);
 };
 
-export { scheduleChallenge };
+export { cancelUnstartedChallenge, scheduleChallenge };

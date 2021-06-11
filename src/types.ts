@@ -57,10 +57,13 @@ interface Challenge {
 	message: string;
 	count: Count;
 	users: string[];
+	date: Date;
+	status: ChallengeStatus;
 }
 
 enum ScheduleType {
 	Immediate,
+	SixtySecondDelay,
 	Random,
 }
 
@@ -82,12 +85,25 @@ interface ExerciseCount {
 	countUnit: string;
 }
 
+enum SlackAPIRate {
+	Throttled,
+	NotThrottled,
+}
+
+enum ChallengeStatus {
+	GettingUserPresence = 'GettingUserPresence',
+	Started = 'Started',
+	Cancelled = 'Cancelled',
+	NotFound = 'NotFound',
+}
+
 interface ChallengeEntity {
 	id: string;
 	exerciseName: string;
 	count: number;
 	countUnit: CountUnit;
 	date: Date;
+	status: ChallengeStatus;
 }
 
 interface AchievementEntity {
@@ -114,4 +130,6 @@ export {
 	ExerciseCount,
 	ChallengeEntity,
 	AchievementEntity,
+	SlackAPIRate,
+	ChallengeStatus,
 };
